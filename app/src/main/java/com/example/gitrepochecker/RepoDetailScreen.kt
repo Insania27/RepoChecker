@@ -1,16 +1,22 @@
 package com.example.gitrepochecker
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
@@ -24,7 +30,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 
@@ -62,63 +70,82 @@ fun RepoDetailScreen(navController: NavController, repoId: Long) {
         frequency = repoValue.frequency
     }
 
-    Scaffold(
-        topBar = { TopAppBar(title = { Text("Детали репозитория") }) }
-    ) { innerPadding ->
+    Scaffold { innerPadding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "URL репозитория:")
-            Text(text = repoValue.url)
-
             Text(
-                text = if (repoValue.isOutdated) "Статус: Устарел" else "Статус: Актуален"
+                text = repoValue.url,
+                fontSize = 20.sp,
+                modifier = Modifier.padding(top = 50.dp),
+                fontWeight = FontWeight.Bold
             )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
 
-            Text(text = "Частота проверки")
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(
-                    onClick = { frequency = "HOURLY" },
-                    colors = if (frequency == "HOURLY")
-                        ButtonDefaults.buttonColors(backgroundColor = Color.Green)
-                    else ButtonDefaults.buttonColors(backgroundColor = Color.Gray)
-                ) { Text("Каждый час") }
+                Text(
+                    text = if (repoValue.isOutdated) "Устарел" else "Актуален",
+                    color = if (repoValue.isOutdated) Color(0xFFe03131)
+                            else Color(0xFF2f9e44),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
+                )
 
-                Button(
-                    onClick = { frequency = "DAILY" },
-                    colors = if (frequency == "DAILY")
-                        ButtonDefaults.buttonColors(backgroundColor = Color.Green)
-                    else ButtonDefaults.buttonColors(backgroundColor = Color.Gray)
-                ) { Text("Каждый день") }
-            }
+                Text(text = "Частота проверки")
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        onClick = { frequency = "HOURLY" },
+                        colors = if (frequency == "HOURLY")
+                            ButtonDefaults.buttonColors(backgroundColor = Color.Green)
+                        else ButtonDefaults.buttonColors(backgroundColor = Color.Gray)
+                    ) { Text("Каждый час") }
 
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = { viewModel.checkNow(repoValue) }) {
-                    Text("Проверить актуальность")
+                    Button(
+                        onClick = { frequency = "DAILY" },
+                        colors = if (frequency == "DAILY")
+                            ButtonDefaults.buttonColors(backgroundColor = Color.Green)
+                        else ButtonDefaults.buttonColors(backgroundColor = Color.Gray)
+                    ) { Text("Каждый день") }
                 }
-                Button(
-                    onClick = {
-                        if (frequency != repoValue.frequency) {
-                            viewModel.updateRepoFrequency(repoValue, frequency)
-                        }
+
+                Spacer(Modifier.height(50.dp))
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    OutlinedButton(onClick = { viewModel.checkNow(repoValue) },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFa5d8ff)),
+                        border = BorderStroke(width = 2.dp, color = Color.Black),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.height(70.dp).width(300.dp)
+                    )
+                    {
+                        Text("Проверить актуальность")
                     }
-                ) {
-                    Text("Сохранить")
+
+                    Spacer(Modifier.height(70.dp))
+
+                    OutlinedButton(
+                        onClick = { showDeleteDialog = true },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color.Red),
+                        border = BorderStroke(width = 2.dp, color = Color.Black),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.height(70.dp).width(300.dp)
+                    ) {
+                        Text("Удалить", color = Color.White)
+                    }
+
                 }
 
-                Spacer(modifier = Modifier.weight(1f))
-                Button(
-                    onClick = { showDeleteDialog = true },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.Red)
-                ) {
-                    Text("Удалить")
-                }
             }
+
         }
+
     }
 
     if (showDeleteDialog) {
