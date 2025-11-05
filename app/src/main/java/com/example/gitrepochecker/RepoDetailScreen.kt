@@ -1,6 +1,7 @@
 package com.example.gitrepochecker
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -78,7 +80,7 @@ fun RepoDetailScreen(navController: NavController, repoId: Long) {
             Text(
                 text = repoValue.url,
                 fontSize = 20.sp,
-                modifier = Modifier.padding(top = 50.dp),
+                modifier = Modifier.padding(top = 60.dp),
                 fontWeight = FontWeight.Bold
             )
             Column(
@@ -90,6 +92,8 @@ fun RepoDetailScreen(navController: NavController, repoId: Long) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
+                Spacer(Modifier.height(20.dp))
+
                 Text(
                     text = if (repoValue.isOutdated) "Устарел" else "Актуален",
                     color = if (repoValue.isOutdated) Color(0xFFe03131)
@@ -98,21 +102,49 @@ fun RepoDetailScreen(navController: NavController, repoId: Long) {
                     fontSize = 20.sp
                 )
 
-                Text(text = "Частота проверки")
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(
+                Spacer(Modifier.height(20.dp))
+
+                Text(
+                    text = "Частота проверки",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
+                )
+
+                Spacer(Modifier.height(10.dp))
+
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    OutlinedButton(
+                        border = BorderStroke(width = 2.dp, color = Color.Black),
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier.height(120.dp).width(120.dp),
                         onClick = { frequency = "HOURLY" },
                         colors = if (frequency == "HOURLY")
-                            ButtonDefaults.buttonColors(backgroundColor = Color.Green)
-                        else ButtonDefaults.buttonColors(backgroundColor = Color.Gray)
-                    ) { Text("Каждый час") }
+                            ButtonDefaults.buttonColors(backgroundColor = Color(0xFF69db7c))
+                        else ButtonDefaults.buttonColors(backgroundColor = Color(0xFFCED4DA))
+                    ) { Text(
+                        "Каждый час",
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    ) }
 
-                    Button(
+                    Spacer(Modifier.width(50.dp))
+
+                    OutlinedButton(
+                        border = BorderStroke(width = 2.dp, color = Color.Black),
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier.height(120.dp).width(120.dp),
                         onClick = { frequency = "DAILY" },
                         colors = if (frequency == "DAILY")
-                            ButtonDefaults.buttonColors(backgroundColor = Color.Green)
-                        else ButtonDefaults.buttonColors(backgroundColor = Color.Gray)
-                    ) { Text("Каждый день") }
+                            ButtonDefaults.buttonColors(backgroundColor = Color(0xFF69db7c))
+                        else ButtonDefaults.buttonColors(backgroundColor = Color(0xFFCED4DA))
+                    ) { Text(
+                        "Каждый день",
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    ) }
                 }
 
                 Spacer(Modifier.height(50.dp))
@@ -125,7 +157,11 @@ fun RepoDetailScreen(navController: NavController, repoId: Long) {
                         modifier = Modifier.height(70.dp).width(300.dp)
                     )
                     {
-                        Text("Проверить актуальность")
+                        Text("Проверить актуальность",
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
                     }
 
                     Spacer(Modifier.height(70.dp))
@@ -137,7 +173,11 @@ fun RepoDetailScreen(navController: NavController, repoId: Long) {
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.height(70.dp).width(300.dp)
                     ) {
-                        Text("Удалить", color = Color.White)
+                        Text("Удалить",
+                            color = Color.White,
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp)
                     }
 
                 }

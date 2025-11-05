@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -60,15 +61,18 @@ fun RepoListScreen(navController: NavController) {
             }
         } else {
             Column(
-                Modifier.fillMaxSize(),
+                Modifier.fillMaxSize().background(color = Color(0xFFf8f9fa)),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     text = "Отслеживание репозиториев",
                     fontSize = 20.sp,
-                    modifier = Modifier.padding(top = 50.dp),
+                    modifier = Modifier.padding(top = 60.dp),
                     fontWeight = FontWeight.Bold
                 )
+
+                Spacer(Modifier.height(20.dp))
+
                 LazyColumn(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -90,14 +94,16 @@ fun RepoListScreen(navController: NavController) {
                             )
                         ) {
                             Text(
-                                text = "Репозиторий ${repo.id}",
+                                text = repo.url,
                                 modifier = Modifier
                                     .wrapContentWidth(Alignment.CenterHorizontally)
                                     .wrapContentHeight(Alignment.CenterVertically),
                                 textAlign = TextAlign.Center,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp
                             )
                         }
+                        Spacer(Modifier.height(10.dp))
                     }
                 }
             }
