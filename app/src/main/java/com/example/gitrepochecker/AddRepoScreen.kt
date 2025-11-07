@@ -1,6 +1,7 @@
 package com.example.gitrepochecker
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +18,8 @@ import androidx.compose.material.TextField
 import androidx.compose.material.TopAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,11 +46,17 @@ fun AddRepoScreen(navController: NavController) {
         modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top =50.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        TextField(
+        OutlinedTextField(
             value = url,
             onValueChange = { url = it },
-            label = { Text("URL репозитория") },
-            modifier = Modifier.fillMaxWidth()
+            label = { Text("URL репозитория", color = Color(0xFF194370)) },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                unfocusedBorderColor = Color(0xFF194370),
+                focusedBorderColor = Color(0xFF194370)
+            ),
+
         )
         if (error.isNotEmpty()) {
             Text(error, color = Color.Red)

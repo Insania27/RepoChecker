@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
@@ -48,6 +49,8 @@ fun RepoDetailScreen(navController: NavController, repoId: Long) {
     }
 
     val repo by remember { derivedStateOf { viewModel.currentRepo.value } }
+    val lastCommit by remember { derivedStateOf { viewModel.lastCommitInfo.value } }
+    val isPulling by remember { derivedStateOf { viewModel.isPulling.value } }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
 
@@ -102,7 +105,17 @@ fun RepoDetailScreen(navController: NavController, repoId: Long) {
                     fontSize = 20.sp
                 )
 
+                Spacer(Modifier.height(12.dp))
+                Text(
+                    text = if (lastCommit.isNotBlank()) lastCommit else "Информация о последнем коммите недоступна",
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    textAlign = TextAlign.Center
+                )
+
                 Spacer(Modifier.height(20.dp))
+
+
 
                 Text(
                     text = "Частота проверки",
@@ -150,18 +163,57 @@ fun RepoDetailScreen(navController: NavController, repoId: Long) {
                 Spacer(Modifier.height(50.dp))
 
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    OutlinedButton(onClick = { viewModel.checkNow(repoValue) },
-                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFa5d8ff)),
-                        border = BorderStroke(width = 2.dp, color = Color.Black),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.height(70.dp).width(300.dp)
-                    )
-                    {
-                        Text("Проверить актуальность",
-                            textAlign = TextAlign.Center,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp
+//                    OutlinedButton(onClick = { viewModel.checkNow(repoValue) },
+//                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFa5d8ff)),
+//                        border = BorderStroke(width = 2.dp, color = Color.Black),
+//                        shape = RoundedCornerShape(8.dp),
+//                        modifier = Modifier.height(70.dp).width(300.dp)
+//                    )
+//                    {
+//                        Text("Проверить актуальность",
+//                            textAlign = TextAlign.Center,
+//                            fontWeight = FontWeight.Bold,
+//                            fontSize = 18.sp
+//                        )
+//                    }
+
+                    if (repoValue.isOutdated) {
+                        OutlinedButton(
+                            onClick = { viewModel.pullAndRefresh(repoValue) },
+                            enabled = !isPulling,
+                            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFa5d8ff)),
+                            border = BorderStroke(width = 2.dp, color = Color.Black),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.height(70.dp).width(300.dp)
+                        ) {
+                            if (isPulling) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp),
+                                    color = Color.Black
+                                )
+                                Spacer(Modifier.width(12.dp))
+                                Text("Обновление...")
+                            } else {
+                                Text("Обновить репозиторий",
+                                    textAlign = TextAlign.Center,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 18.sp)
+                            }
+                        }
+                    } else {
+                        OutlinedButton(onClick = { viewModel.checkNow(repoValue) },
+                            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFa5d8ff)),
+                            border = BorderStroke(width = 2.dp, color = Color.Black),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.height(70.dp).width(300.dp)
                         )
+                        {
+                            Text("Проверить актуальность",
+                                textAlign = TextAlign.Center,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp
+                            )
+                        }
                     }
 
                     Spacer(Modifier.height(70.dp))

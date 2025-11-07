@@ -14,9 +14,11 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -34,10 +36,39 @@ class RepoViewModel @Inject constructor(
     private val _currentRepo = mutableStateOf<RepoEntity?>(null)
     val currentRepo: State<RepoEntity?> = _currentRepo
 
+    private val _lastCommitInfo = mutableStateOf<String>("")
+    val lastCommitInfo: State<String> = _lastCommitInfo
+
+    private val _isPulling = mutableStateOf(false)
+    val isPulling: State<Boolean> = _isPulling
+
+//    fun loadRepo(id: Long) {
+//        viewModelScope.launch {
+//            repoRepository.getRepoByIdFlow(id).collect { repo ->
+//                _currentRepo.value = repo
+//            }
+//        }
+//    }
+
     fun loadRepo(id: Long) {
         viewModelScope.launch {
             repoRepository.getRepoByIdFlow(id).collect { repo ->
                 _currentRepo.value = repo
+
+
+                if (repo != null) {
+                    try {
+                        val info = withContext(Dispatchers.IO) {
+                            gitHelper.getRepoInfo(repo.localPath)
+                        }
+                        _lastCommitInfo.value = info
+                    } catch (e: Exception) {
+                        Log.e("RepoViewModel", "Failed to get last commit info: ${e.message}", e)
+                        _lastCommitInfo.value = "Ошибка при получении коммита"
+                    }
+                } else {
+                    _lastCommitInfo.value = ""
+                }
             }
         }
     }
@@ -61,18 +92,46 @@ class RepoViewModel @Inject constructor(
         }
     }
 
+//    fun checkNow(repo: RepoEntity) {
+//        viewModelScope.launch {
+//            try {
+//                Log.d("RepoViewModel", "Starting manual check for id=${repo.id}")
+//                val isOutdated = gitHelper.checkIfOutdated(repo.localPath)
+//                val updated = repo.copy(isOutdated = isOutdated, lastCheck = System.currentTimeMillis())
+//
+//                Log.d("RepoViewModel", "checkNow result: id=${repo.id} isOutdated=$isOutdated")
+//
+//                repoRepository.updateRepo(updated) // suspend
+//
+//                _currentRepo.value = updated
+//
+//                val fromDb = repoRepository.getRepoById(repo.id)
+//                Log.d("RepoViewModel", "After update DB row: $fromDb")
+//            } catch (e: Exception) {
+//                Log.e("RepoViewModel", "checkNow failed for id=${repo.id}: ${e.message}", e)
+//            }
+//        }
+//    }
+
     fun checkNow(repo: RepoEntity) {
         viewModelScope.launch {
             try {
                 Log.d("RepoViewModel", "Starting manual check for id=${repo.id}")
-                val isOutdated = gitHelper.checkIfOutdated(repo.localPath)
+                val isOutdated = withContext(Dispatchers.IO) { gitHelper.checkIfOutdated(repo.localPath) }
                 val updated = repo.copy(isOutdated = isOutdated, lastCheck = System.currentTimeMillis())
 
                 Log.d("RepoViewModel", "checkNow result: id=${repo.id} isOutdated=$isOutdated")
 
-                repoRepository.updateRepo(updated) // suspend
+                repoRepository.updateRepo(updated)
 
                 _currentRepo.value = updated
+
+                try {
+                    val info = withContext(Dispatchers.IO) { gitHelper.getRepoInfo(repo.localPath) }
+                    _lastCommitInfo.value = info
+                } catch (e: Exception) {
+                    Log.e("RepoViewModel", "Failed to read last commit after check: ${e.message}", e)
+                }
 
                 val fromDb = repoRepository.getRepoById(repo.id)
                 Log.d("RepoViewModel", "After update DB row: $fromDb")
@@ -155,4 +214,34 @@ class RepoViewModel @Inject constructor(
             }
         }
     }
+
+    fun pullAndRefresh(repo: RepoEntity) {
+        viewModelScope.launch {
+            _isPulling.value = true
+            try {
+                val pulled = withContext(Dispatchers.IO) { gitHelper.pullRepo(repo.localPath) }
+
+                val isOutdated = withContext(Dispatchers.IO) { gitHelper.checkIfOutdated(repo.localPath) }
+                val updated = repo.copy(isOutdated = isOutdated, lastCheck = System.currentTimeMillis())
+
+                repoRepository.updateRepo(updated)
+                _currentRepo.value = updated
+
+                try {
+                    val info = withContext(Dispatchers.IO) { gitHelper.getRepoInfo(repo.localPath) }
+                    _lastCommitInfo.value = info
+                } catch (e: Exception) {
+                    Log.e("RepoViewModel", "Failed to read last commit after pull: ${e.message}", e)
+                }
+
+
+                Log.d("RepoViewModel", "pullAndRefresh completed for id=${repo.id}, pulled=$pulled")
+            } catch (e: Exception) {
+                Log.e("RepoViewModel", "pullAndRefresh failed for id=${repo.id}: ${e.message}", e)
+            } finally {
+                _isPulling.value = false
+            }
+        }
+    }
+
 }

@@ -10,6 +10,7 @@ import org.eclipse.jgit.lib.BranchTrackingStatus
 import org.eclipse.jgit.revwalk.RevWalk
 import java.io.File
 import java.util.UUID
+import kotlin.use
 
 class GitHelper(private val context: Context) {
 
@@ -106,14 +107,61 @@ class GitHelper(private val context: Context) {
         }
     }
 
+//    fun getRepoInfo(localPath: String): String {
+//        try {
+//            Git.open(File(localPath)).use { git ->
+//                val lastCommit = git.log().setMaxCount(1).call().iterator().next()
+//                return "Last commit: ${lastCommit.name} - ${lastCommit.fullMessage}"
+//            }
+//        } catch (e: Exception) {
+//            return "Error getting info"
+//        }
+//    }
+
     fun getRepoInfo(localPath: String): String {
         try {
             Git.open(File(localPath)).use { git ->
                 val lastCommit = git.log().setMaxCount(1).call().iterator().next()
-                return "Last commit: ${lastCommit.name} - ${lastCommit.fullMessage}"
+
+                val shortMessage = (lastCommit.shortMessage ?: "").replace("\n", " ").trim()
+
+                return "Последний коммит - $shortMessage"
             }
         } catch (e: Exception) {
             return "Error getting info"
         }
     }
+
+    suspend fun pullRepo(localPath: String): Boolean = withContext(Dispatchers.IO) {
+        val tag = "GitHelper"
+        try {
+            val repoDir = File(localPath)
+            if (!repoDir.exists()) {
+                Log.e(tag, "Local repo dir does not exist for pull: $localPath")
+                return@withContext false
+            }
+
+            Git.open(repoDir).use { git ->
+                try {
+                    git.fetch().call()
+                } catch (e: Exception) {
+                    Log.w(tag, "Fetch during pull failed: ${e.message}", e)
+                }
+
+                try {
+                    val pullResult = git.pull().call()
+                    Log.d(tag, "Pull completed: $pullResult")
+                    return@withContext true
+                } catch (e: Exception) {
+                    Log.e(tag, "Pull failed: ${e.message}", e)
+                    return@withContext false
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(tag, "pullRepo failed: ${e.message}", e)
+            return@withContext false
+        }
+    }
+
+
 }
