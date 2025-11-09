@@ -1,6 +1,7 @@
 package com.example.gitrepochecker
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,14 +13,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
+import androidx.compose.material.Icon
 import androidx.compose.material.OutlinedButton
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SegmentedButtonDefaults.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,7 +34,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -43,21 +57,22 @@ fun AddRepoScreen(navController: NavController) {
     var error by remember { mutableStateOf("") }
 
     Column(
-        modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top =50.dp),
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 50.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         OutlinedTextField(
             value = url,
             onValueChange = { url = it },
-            label = { Text("URL репозитория", color = Color(0xFF194370)) },
+            label = { Text("URL репозитория", color = Color.Black) },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                unfocusedBorderColor = Color(0xFF194370),
-                focusedBorderColor = Color(0xFF194370)
+                unfocusedBorderColor = Color.Black,
+                focusedBorderColor = Color.Black,
             ),
-
         )
+
+
         if (error.isNotEmpty()) {
             Text(error, color = Color.Red)
         }

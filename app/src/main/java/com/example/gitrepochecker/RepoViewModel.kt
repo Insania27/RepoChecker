@@ -172,7 +172,7 @@ class RepoViewModel @Inject constructor(
             .build()
 
         val period = if (frequency == "HOURLY") 1L else 24L
-        val request = PeriodicWorkRequestBuilder<RepoCheckWorker>(period, TimeUnit.HOURS)
+        val request = PeriodicWorkRequestBuilder<RepoCheckWorker>(period, TimeUnit.MINUTES)
             .setConstraints(constraints)
             .setInputData(workDataOf("repo_id" to repoId))
             .build()

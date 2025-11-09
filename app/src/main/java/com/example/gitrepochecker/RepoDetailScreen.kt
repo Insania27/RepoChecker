@@ -84,7 +84,8 @@ fun RepoDetailScreen(navController: NavController, repoId: Long) {
                 text = repoValue.url,
                 fontSize = 20.sp,
                 modifier = Modifier.padding(top = 60.dp),
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
             )
             Column(
                 modifier = Modifier
@@ -108,9 +109,10 @@ fun RepoDetailScreen(navController: NavController, repoId: Long) {
                 Spacer(Modifier.height(12.dp))
                 Text(
                     text = if (lastCommit.isNotBlank()) lastCommit else "Информация о последнем коммите недоступна",
-                    fontSize = 14.sp,
+                    fontSize = 16.sp,
                     modifier = Modifier.padding(horizontal = 16.dp),
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Bold
                 )
 
                 Spacer(Modifier.height(20.dp))
